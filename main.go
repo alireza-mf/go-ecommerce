@@ -3,14 +3,13 @@ package main
 import (
 	"log"
 
+	"github.com/alireza-mf/go-ecommerce/config"
 	"github.com/alireza-mf/go-ecommerce/db"
 	"github.com/alireza-mf/go-ecommerce/routers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-// todos: linter, env, register, login with jwt, omit password in get user, req validation, get products, get product, add to card product, confirm card, add user roles and create/update product
 
 // Server represents server
 type Server struct {
@@ -20,10 +19,7 @@ type Server struct {
 }
 
 func main() {
-	// port := configs.Server.Port
-	// if port == "" {
-	//  	port = "8000"
-	// }
+	config.InitConfig()
 
 	r := gin.Default()
 
@@ -42,5 +38,6 @@ func main() {
 	userAPI := initUserAPI(mongodb)
 	routers.UserRouter(r, userAPI)
 
-	log.Fatal(r.Run())
+	address := ":" + config.GetConfig().Port
+	log.Fatal(r.Run(address))
 }

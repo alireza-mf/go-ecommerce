@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 
+	"github.com/alireza-mf/go-ecommerce/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -10,9 +11,8 @@ import (
 // Initialize MongoDB connection.
 func InitMongoDB() (*mongo.Database, error) {
 
-	// TODO: get URI form env
 	// Make MongoDB Connection
-	clientOption := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOption := options.Client().ApplyURI(config.GetConfig().MongoURI)
 	db, err := mongo.Connect(context.TODO(), clientOption)
 	if err != nil {
 		return nil, err
@@ -24,6 +24,5 @@ func InitMongoDB() (*mongo.Database, error) {
 		return nil, err
 	}
 
-	// TODO: get db name form env
-	return db.Database("ecommerce"), nil
+	return db.Database(config.GetConfig().MongoDatabaseName), nil
 }
