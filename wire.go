@@ -1,3 +1,6 @@
+//go:build wireinject
+// +build wireinject
+
 package main
 
 import (
@@ -8,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func initUserAPI(db *mongo.Client) controllers.UserController {
+func initUserAPI(db *mongo.Database) controllers.UserController {
 	wire.Build(
 		repositories.ProvideUserRepository,
 		services.ProvideUserService,

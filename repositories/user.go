@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository struct {
-	DB *mongo.Database
+	DB         *mongo.Database
 	Collection string
 }
 
@@ -62,12 +62,12 @@ func (u *UserRepository) Create(user *models.User) error {
 }
 
 // UpdateByUserId
-func (u *UserRepository) UpdateByUserId(user_id uint, updateKey string, updateValue  interface{}) error {
+func (u *UserRepository) UpdateByUserId(user_id uint, updateKey string, updateValue interface{}) error {
 	_, err := u.DB.Collection(u.Collection).UpdateOne(
 		context.TODO(),
 		bson.M{"user_id": user_id},
 		bson.M{"$set": bson.M{updateKey: updateValue}},
-	);
+	)
 
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func (u *UserRepository) UpdateByUserId(user_id uint, updateKey string, updateVa
 // DeleteByUserId
 func (u *UserRepository) DeleteByUserId(user_id uint) error {
 	_, err := u.DB.Collection(u.Collection).DeleteOne(context.TODO(), bson.M{"user_id": user_id})
-	
+
 	if err != nil {
 		return err
 	}

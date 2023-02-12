@@ -8,7 +8,7 @@ import (
 )
 
 // Initialize MongoDB connection.
-func InitMongoDB() (*mongo.Client, error) {
+func InitMongoDB() (*mongo.Database, error) {
 
 	// TODO: get URI form env
 	// Make MongoDB Connection
@@ -23,5 +23,7 @@ func InitMongoDB() (*mongo.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return db, nil
+
+	// TODO: get db name form env
+	return db.Database("ecommerce"), nil
 }
