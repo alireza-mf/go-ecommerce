@@ -37,7 +37,7 @@ func (u *UserRepository) FindAll() ([]models.User, error) {
 }
 
 // FindByUserId
-func (u *UserRepository) FindByUserId(user_id uint) (user *models.User, err error) {
+func (u *UserRepository) FindByUserId(user_id string) (user *models.User, err error) {
 	err = u.DB.Collection(u.Collection).FindOne(context.TODO(), bson.M{"user_id": user_id}).Decode(&user)
 
 	if err != nil {
@@ -50,15 +50,34 @@ func (u *UserRepository) FindByUserId(user_id uint) (user *models.User, err erro
 	return user, nil
 }
 
-// Create
-func (u *UserRepository) Create(user *models.User) error {
-	_, err := u.DB.Collection(u.Collection).InsertOne(context.TODO(), user)
+// FindByEmail
+func (u *UserRepository) FindByEmail(email string) (user *models.User, err error) {
+	err = u.DB.Collection(u.Collection).FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
 
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "mongo: no documents") {
+			return nil, nil
+		}
+		return nil, err
 	}
 
-	return nil
+	return user, nil
+}
+
+// Create
+func (u *UserRepository) Create(userModel *models.User) (user *models.User, err error) {
+	var id *mongo.InsertOneResult
+	id, err = u.DB.Collection(u.Collection).InsertOne(context.TODO(), userModel)
+	if err != nil {
+		return nil, err
+	}
+
+	err = u.DB.Collection(u.Collection).FindOne(context.TODO(), bson.M{"_id": id.InsertedID}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // UpdateByUserId

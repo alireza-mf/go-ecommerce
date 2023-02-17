@@ -9,6 +9,8 @@ require (
 	github.com/rs/cors v1.8.3
 	github.com/spf13/viper v1.15.0
 	go.mongodb.org/mongo-driver v1.11.1
+	github.com/google/uuid v1.3.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 )
 
 require (

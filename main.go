@@ -11,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// todos: register, login with jwt, omit password in get user, req validation, get products, get product, add to card product, confirm card, add user roles and create/update product, app errors
+
 // Server represents server
 type Server struct {
 	Instance    *mongo.Database

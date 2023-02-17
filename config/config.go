@@ -12,6 +12,7 @@ type Config struct {
 	Port              string `mapstructure:"PORT"`
 	MongoURI          string `mapstructure:"MONGODB_URI"`
 	MongoDatabaseName string `mapstructure:"MONGODB_DATABASE_NAME"`
+	JWTSecret         string `mapstructure:"JWT_SECRET"`
 }
 
 var config Config
@@ -39,12 +40,13 @@ func loadConfig() {
 		Port:              getVariable("PORT", "8000"),
 		MongoURI:          getVariable("MONGODB_URI", "mongodb://localhost:27017/"),
 		MongoDatabaseName: getVariable("MONGODB_DATABASE_NAME", "ecommerce"),
+		JWTSecret:         getVariable("JWT_SECRET", ""),
 	}
 }
 
 func getVariable(envConfig string, defaultConfig string) string {
 	envValue := viper.GetString(envConfig)
-	return util.If(envValue == "", envValue, defaultConfig)
+	return util.If(envValue != "", envValue, defaultConfig)
 }
 
 func GetConfig() Config {
