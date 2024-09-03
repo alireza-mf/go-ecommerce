@@ -1,6 +1,6 @@
 module github.com/alireza-mf/go-ecommerce
 
-go 1.21
+go 1.23
 
 require (
 	github.com/gin-gonic/gin v1.8.2

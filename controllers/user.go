@@ -6,9 +6,9 @@ import (
 
 	"github.com/alireza-mf/go-ecommerce/models"
 	"github.com/alireza-mf/go-ecommerce/services"
+	"github.com/alireza-mf/go-ecommerce/util"
 	"github.com/alireza-mf/go-ecommerce/util/jwt"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,74 +20,63 @@ func ProvideUserController(u services.UserService) UserController {
 	return UserController{UserService: u}
 }
 
-func (u *UserController) GetUser(c *gin.Context) {
-	userId := c.Param("user_id")
-
-	user, err := u.UserService.FindById(userId)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": http.StatusText(500)})
-		return
-	}
-	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": http.StatusText(404)})
-		return
-	}
-
-	c.JSON(http.StatusOK, &user)
-}
-
 func (u *UserController) RegisterUser(c *gin.Context) {
-	var body models.UserInputForm
-	err := c.ShouldBindBodyWith(&body, binding.JSON)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
+	input := c.MustGet("input").(models.RegisterUserInput)
 
-	var response *models.User
-	response, err = u.UserService.CreateUser(&body)
+	response, err := u.UserService.CreateUser(&input.Body)
 	if err != nil {
 		if strings.Contains(err.Error(), "CreateUser::email_is_existed") {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Email is existed."})
+			util.ResponseError(c, http.StatusBadRequest, "Email is existed.")
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			util.ResponseError(c, http.StatusInternalServerError)
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, &response)
+	util.ResponseSuccess(c, &response)
 }
 
 func (u *UserController) LoginUser(c *gin.Context) {
-	var body models.UserLoginForm
-	err := c.ShouldBindBodyWith(&body, binding.JSON)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
+	input := c.MustGet("input").(models.LoginUserInput)
 
-	user, err := u.UserService.UserRepository.FindByEmail(body.Email)
+	user, err := u.UserService.UserRepository.FindByEmail(input.Body.Email)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		util.ResponseError(c, http.StatusInternalServerError)
 		return
 	}
 	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": http.StatusText(404)})
+		util.ResponseError(c, http.StatusBadRequest, "Incorrect email or password.")
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Body.Password))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		util.ResponseError(c, http.StatusBadRequest, "Incorrect email or password")
 		return
 	}
 
 	accessToken, err := jwt.GenerateJWT(user.Email, user.UserId)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		util.ResponseError(c, http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"access_token": accessToken})
+	util.ResponseSuccess(c, struct{ access_token string }{access_token: accessToken})
+}
+
+func (u *UserController) GetUser(c *gin.Context) {
+	input := c.MustGet("input").(models.GetUserInput)
+
+	user, err := u.UserService.FindById(input.Params.UserId)
+
+	if err != nil {
+		util.ResponseError(c, http.StatusInternalServerError)
+		return
+	}
+	if user == nil {
+		util.ResponseError(c, http.StatusNotFound)
+		return
+	}
+
+	util.ResponseSuccess(c, &user)
 }

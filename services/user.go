@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/alireza-mf/go-ecommerce/models"
@@ -25,9 +24,8 @@ func (u *UserService) FindById(UserId string) (*models.User, error) {
 }
 
 // CreateUser
-func (u *UserService) CreateUser(inputModel *models.UserInputForm) (*models.User, error) {
-	fmt.Println(inputModel)
-	isEmailExisted, err := u.UserRepository.FindByEmail(inputModel.Email)
+func (u *UserService) CreateUser(model *models.RegisterUser) (*models.User, error) {
+	isEmailExisted, err := u.UserRepository.FindByEmail(model.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -35,13 +33,13 @@ func (u *UserService) CreateUser(inputModel *models.UserInputForm) (*models.User
 		return nil, errors.New("CreateUser::email_is_existed")
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(inputModel.Password), 8)
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(model.Password), 8)
 
 	userModel := &models.User{
 		UserId:          uuid.Must(uuid.NewRandom()).String(),
-		Email:           inputModel.Email,
+		Email:           model.Email,
 		Password:        string(hashedPassword),
-		DeliveryAddress: inputModel.DeliveryAddress,
+		DeliveryAddress: model.DeliveryAddress,
 		CreatedAt:       time.Now(),
 	}
 
