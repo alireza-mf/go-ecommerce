@@ -5,6 +5,7 @@ import (
 
 	"github.com/alireza-mf/go-ecommerce/models"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // If is a simple one-line if statement
@@ -13,6 +14,20 @@ func If[T any](cond bool, vtrue, vfalse T) T {
 		return vtrue
 	}
 	return vfalse
+}
+
+func ToBsonM(data interface{}) (bson.M, error) {
+	bsonBytes, err := bson.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	var bsonMap bson.M
+	err = bson.Unmarshal(bsonBytes, &bsonMap)
+	if err != nil {
+		return nil, err
+	}
+	return bsonMap, nil
 }
 
 func ResponseSuccess[T any](c *gin.Context, data T) {

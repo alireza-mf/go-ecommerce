@@ -38,7 +38,7 @@ type LoginUserInput struct {
 
 type GetUserInput struct {
 	Params struct {
-		UserId string `bson:"user_id" json:"user_id" uri:"user_id"`
+		UserId string `uri:"user_id"`
 	}
 	Body  struct{}
 	Query struct{}

@@ -20,3 +20,13 @@ func initUserAPI(db *mongo.Database) controllers.UserController {
 
 	return controllers.UserController{}
 }
+
+func initProductAPI(db *mongo.Database) controllers.ProductController {
+	wire.Build(
+		repositories.ProvideProductRepository,
+		services.ProvideProductService,
+		controllers.ProvideProductController,
+	)
+
+	return controllers.ProductController{}
+}

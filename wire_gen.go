@@ -21,3 +21,10 @@ func initUserAPI(db *mongo.Database) controllers.UserController {
 	userController := controllers.ProvideUserController(userService)
 	return userController
 }
+
+func initProductAPI(db *mongo.Database) controllers.ProductController {
+	productRepository := repositories.ProvideProductRepository(db)
+	productService := services.ProvideProductService(productRepository)
+	productController := controllers.ProvideProductController(productService)
+	return productController
+}

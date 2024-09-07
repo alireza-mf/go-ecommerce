@@ -36,8 +36,11 @@ func main() {
 
 	// init routes
 	userAPI := initUserAPI(mongodb)
-	routers.UserRouter(r, userAPI)
+	productAPI := initProductAPI(mongodb)
 
-	address := ":" + config.GetConfig().Port
+	routers.UserRouter(r, userAPI)
+	routers.ProductRouter(r, productAPI)
+
+	address := "127.0.0.1:" + config.GetConfig().Port
 	log.Fatal(r.Run(address))
 }
