@@ -7,3 +7,10 @@ type ResponseSuccess struct {
 type ResponseError struct {
 	Error any `json:"error"`
 }
+
+type SortOrder int
+
+const (
+	Ascending  SortOrder = 1
+	Descending SortOrder = -1
+)

@@ -1,10 +1,12 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/alireza-mf/go-ecommerce/models"
 	"github.com/alireza-mf/go-ecommerce/repositories"
+	"github.com/alireza-mf/go-ecommerce/util"
 	"github.com/google/uuid"
 )
 
@@ -21,9 +23,24 @@ func (u *ProductService) FindById(ProductId string) (*models.Product, error) {
 	return u.ProductRepository.FindByProductId(ProductId)
 }
 
-// FindById
-func (u *ProductService) FindAll() ([]models.Product, error) {
-	return u.ProductRepository.FindAll()
+// FindAll
+func (u *ProductService) FindAll(sortOptions *models.ProductFilterOptions) ([]models.Product, error) {
+	defaultSortField := models.SortProductByCreatedAt
+	defaultSortOrder := models.Descending
+
+	sortOptions = &models.ProductFilterOptions{
+		IsActive:  sortOptions.IsActive,
+		PriceFrom: sortOptions.PriceFrom,
+		PriceTo:   sortOptions.PriceTo,
+		SortField: util.If(sortOptions.SortField != nil, sortOptions.SortField, &defaultSortField),
+		SortOrder: util.If(sortOptions.SortOrder != nil, sortOptions.SortOrder, &defaultSortOrder),
+	}
+
+	if sortOptions.PriceFrom != nil && sortOptions.PriceTo != nil && *sortOptions.PriceFrom > *sortOptions.PriceTo {
+		return nil, errors.New("FindAll::price_from_price_to")
+	}
+
+	return u.ProductRepository.FindAll(sortOptions)
 }
 
 // CreateProduct

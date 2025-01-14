@@ -61,6 +61,28 @@ type GetProductsInput struct {
 	Params struct{}
 	Body   struct{}
 	Query  struct {
-		IsActive bool `uri:"is_active"`
+		IsActive  *bool             `form:"is_active"`
+		PriceFrom *uint             `form:"price_from"`
+		PriceTo   *uint             `form:"price_to"`
+		SortField *ProductSortField `form:"sort_field" binding:"omitempty,oneof=name price created_at"`
+		SortOrder *SortOrder        `form:"sort_order" binding:"omitempty,oneof=1 -1"`
 	}
+}
+
+// ### Others ###
+
+type ProductSortField string
+
+const (
+	SortProductByName      ProductSortField = "name"
+	SortProductByPrice     ProductSortField = "price"
+	SortProductByCreatedAt ProductSortField = "created_at"
+)
+
+type ProductFilterOptions struct {
+	IsActive  *bool
+	PriceFrom *uint
+	PriceTo   *uint
+	SortField *ProductSortField
+	SortOrder *SortOrder
 }

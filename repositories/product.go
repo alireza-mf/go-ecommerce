@@ -31,7 +31,7 @@ func (r *ProductRepository) collection(name Entity) *mongo.Collection {
 }
 
 // FindAll
-func (r *ProductRepository) FindAll() ([]models.Product, error) {
+func (r *ProductRepository) FindAll(filterOptions *models.ProductFilterOptions) ([]models.Product, error) {
 	// Aggregation pipeline
 	pipeline := mongo.Pipeline{
 		{
@@ -50,6 +50,30 @@ func (r *ProductRepository) FindAll() ([]models.Product, error) {
 				{"as", "attributes"},
 			}},
 		},
+	}
+
+	// filter
+	matchPipeline := bson.D{}
+	if filterOptions.IsActive != nil {
+		matchPipeline = append(matchPipeline, bson.E{"is_active", *filterOptions.IsActive})
+	}
+	if filterOptions.PriceFrom != nil {
+		matchPipeline = append(matchPipeline, bson.E{"price", bson.D{{"$gte", *filterOptions.PriceFrom}}})
+	}
+	if filterOptions.PriceTo != nil {
+		matchPipeline = append(matchPipeline, bson.E{"price", bson.D{{"$lte", *filterOptions.PriceTo}}})
+	}
+	if len(matchPipeline) > 0 {
+		pipeline = append(pipeline, bson.D{{"$match", matchPipeline}})
+	}
+
+	// sort
+	if filterOptions.SortField != nil && filterOptions.SortOrder != nil {
+		pipeline = append(pipeline, bson.D{
+			{"$sort", bson.D{
+				{string(*filterOptions.SortField), filterOptions.SortOrder},
+			}},
+		})
 	}
 
 	cursor, err := r.collection(Product).Aggregate(context.TODO(), pipeline)

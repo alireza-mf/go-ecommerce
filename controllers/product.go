@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/alireza-mf/go-ecommerce/models"
 	"github.com/alireza-mf/go-ecommerce/services"
@@ -47,11 +48,15 @@ func (u *ProductController) GetProduct(c *gin.Context) {
 }
 
 func (u *ProductController) GetProducts(c *gin.Context) {
-	// input := c.MustGet("input").(models.GetProductsInput)
+	input := c.MustGet("input").(models.GetProductsInput)
 
-	products, err := u.ProductService.FindAll()
+	products, err := u.ProductService.FindAll((*models.ProductFilterOptions)(&input.Query))
 
 	if err != nil {
+		if strings.Contains(err.Error(), "FindAll::price_from_price_to") {
+			util.ResponseError(c, http.StatusBadRequest, "price_from cannot be greater than price_to.")
+			return
+		}
 		util.ResponseError(c, http.StatusInternalServerError)
 		return
 	}
