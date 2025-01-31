@@ -9,6 +9,7 @@ type User struct {
 	UserId          string    `bson:"user_id" json:"user_id" uri:"user_id"`
 	Email           string    `bson:"email" json:"email"`
 	Password        string    `bson:"password" json:"-"`
+	Role            string    `bson:"role" json:"role"`
 	DeliveryAddress *string   `bson:"delivery_address" json:"delivery_address"`
 	CreatedAt       time.Time `bson:"created_at" json:"created_at"`
 }

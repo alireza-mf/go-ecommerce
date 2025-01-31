@@ -40,3 +40,17 @@ func ResponseError(c *gin.Context, code int, message ...string) {
 	}
 	c.JSON(code, models.ResponseError{Error: message})
 }
+
+func GetUserClaims(c *gin.Context) (user *models.JWTClaim, exists bool) {
+	value, ok := c.Get("user")
+	if !exists {
+		return nil, false
+	}
+
+	claims, ok := value.(*models.JWTClaim)
+	if !ok || claims == nil {
+		return nil, false
+	}
+
+	return claims, true
+}

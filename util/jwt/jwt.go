@@ -5,20 +5,15 @@ import (
 	"time"
 
 	"github.com/alireza-mf/go-ecommerce/config"
+	"github.com/alireza-mf/go-ecommerce/models"
 	"github.com/dgrijalva/jwt-go"
 )
 
 var jwtKey = []byte(config.GetConfig().JWTSecret)
 
-type JWTClaim struct {
-	UserId string `json:"user_id"`
-	Email  string `json:"email"`
-	jwt.StandardClaims
-}
-
 func GenerateJWT(email string, userId string) (tokenString string, err error) {
 	expirationTime := time.Now().Add(12 * time.Hour)
-	claims := &JWTClaim{
+	claims := &models.JWTClaim{
 		Email:  email,
 		UserId: userId,
 		StandardClaims: jwt.StandardClaims{
@@ -30,10 +25,10 @@ func GenerateJWT(email string, userId string) (tokenString string, err error) {
 	return
 }
 
-func ValidateToken(signedToken string) (err error) {
+func ValidateToken(signedToken string) (claims *models.JWTClaim, err error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
-		&JWTClaim{},
+		&models.JWTClaim{},
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(jwtKey), nil
 		},
@@ -42,7 +37,7 @@ func ValidateToken(signedToken string) (err error) {
 		return
 	}
 
-	claims, ok := token.Claims.(*JWTClaim)
+	claims, ok := token.Claims.(*models.JWTClaim)
 	if !ok {
 		err = errors.New("Couldn't parse claims.")
 		return

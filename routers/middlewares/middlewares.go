@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/alireza-mf/go-ecommerce/util"
 	"github.com/alireza-mf/go-ecommerce/util/jwt"
 	"github.com/gin-gonic/gin"
 )
@@ -25,12 +26,15 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 
-		err := jwt.ValidateToken(tokenParts[1])
+		claims, err := jwt.ValidateToken(tokenParts[1])
 		if err != nil {
 			context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			context.Abort()
 			return
 		}
+
+		// fmt.Printf("%+v\n", user)
+		context.Set("user", claims)
 		context.Next()
 	}
 }
@@ -74,6 +78,25 @@ func ValidateRequest[TInput any]() func(c *gin.Context) {
 
 		// fmt.Printf("%+v\n", input)
 		c.Set("input", input)
+		c.Next()
+	}
+}
+
+func UserRole(role string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, ok := util.GetUserClaims(c)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required."})
+			c.Abort()
+			return
+		}
+
+		if user.Role != role {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied."})
+			c.Abort()
+			return
+		}
+
 		c.Next()
 	}
 }
